@@ -16,7 +16,27 @@ function BatteryService() {
   const [booking, setBooking] = useState({
     date: "",
     time: "",
+    mechanic: "",
   });
+  const [availability, setAvailability] = useState([]);
+
+  const mechanicAvailability = {
+    "2024-01-01": [
+      { time: "09:00 AM", mechanic: "John Doe" },
+      { time: "11:00 AM", mechanic: "Jane Smith" },
+      { time: "02:00 PM", mechanic: "Mike Johnson" },
+    ],
+    "2024-01-02": [
+      { time: "10:00 AM", mechanic: "Sarah Lee" },
+      { time: "01:00 PM", mechanic: "David Brown" },
+      { time: "03:30 PM", mechanic: "Emily Davis" },
+    ],
+    "2024-01-03": [
+      { time: "08:30 AM", mechanic: "Chris Wilson" },
+      { time: "12:30 PM", mechanic: "Anna Garcia" },
+      { time: "04:00 PM", mechanic: "Daniel Martinez" },
+    ],
+  };
 
   const handleVehicleChange = (e) => {
     const { name, value } = e.target;
@@ -34,9 +54,7 @@ function BatteryService() {
 
   const getEstimate = () => {
     if (serviceType) {
-      let cost;
-      let time;
-
+      let cost, time;
       if (serviceType === "basic") {
         cost = 1000;
         time = "1-2 hours";
@@ -47,17 +65,30 @@ function BatteryService() {
         cost = 0;
         time = "Unknown";
       }
-
       setEstimate({ cost, time });
     } else {
       setEstimate({ cost: 0, time: "Please select a service" });
     }
   };
 
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value;
+    setBooking((prev) => ({ ...prev, date: selectedDate }));
+    setAvailability(mechanicAvailability[selectedDate] || []);
+  };
+
+  const handleTimeSelect = (slot) => {
+    setBooking((prev) => ({
+      ...prev,
+      time: slot.time,
+      mechanic: slot.mechanic,
+    }));
+    console.log("Selected Slot:", slot);
+  };
+
   const handleBooking = (e) => {
     e.preventDefault();
     console.log("Booking details:", booking);
-    // alert("Booking confirmed!");
     navigate("/paymentButton");
   };
 
@@ -124,110 +155,35 @@ function BatteryService() {
           <input
             type="date"
             value={booking.date}
-            onChange={(e) => setBooking({ ...booking, date: e.target.value })}
+            onChange={handleDateChange}
             required
           />
-          <input
-            type="time"
-            value={booking.time}
-            onChange={(e) => setBooking({ ...booking, time: e.target.value })}
-            required
-          />
-          <button type="submit">Confirm Booking</button>
+          <div className="availability">
+            <h3>Available Time Slots</h3>
+            {availability.length > 0 ? (
+              <div className="time-slots">
+                {availability.map((slot, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`time-slot ${
+                      booking.time === slot.time ? "selected" : ""
+                    }`}
+                    onClick={() => handleTimeSelect(slot)}
+                  >
+                    {slot.time} - {slot.mechanic}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p>No slots available. Please select another date.</p>
+            )}
+          </div>
+          <button type="submit" disabled={!booking.time}>
+            Confirm Booking
+          </button>
         </form>
       </div>
-      <style jsx="true">{`
-        .container {
-          font-family: Arial, sans-serif;
-          padding: 20px;
-          margin: 20px auto;
-          max-width: 800px;
-          background-color: #f9f9f9;
-          border-radius: 10px;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-          font-size: 1.8rem;
-          color: #333;
-          text-align: center;
-          margin-bottom: 15px;
-        }
-
-        .service-selection,
-        .vehicle-info,
-        .image-upload,
-        .estimate,
-        .booking {
-          margin-bottom: 20px;
-          padding: 15px;
-          background-color: #fff;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        select,
-        input[type="text"],
-        input[type="number"],
-        input[type="date"],
-        input[type="time"],
-        input[type="file"] {
-          width: 100%;
-          padding: 10px;
-          margin: 10px 0;
-          font-size: 1rem;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-        }
-
-        select:focus,
-        input:focus {
-          border-color: #4caf50;
-          outline: none;
-        }
-
-        button {
-          width: 100%;
-          padding: 12px;
-          font-size: 1rem;
-          color: #fff;
-          background-color: #4caf50;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.3s;
-        }
-
-        button:hover {
-          background-color: #45a049;
-        }
-
-        .estimate {
-          background-color: #e8f5e9;
-          color: #333;
-          padding: 15px;
-          border-radius: 8px;
-        }
-
-        .estimate p {
-          font-size: 1.1rem;
-          margin-bottom: 5px;
-        }
-
-        @media (max-width: 768px) {
-          .container {
-            padding: 10px;
-          }
-
-          h2 {
-            font-size: 1.5rem;
-          }
-
-          button {
-            padding: 10px;
-          }
-        }
-      `}</style>
     </div>
   );
 }

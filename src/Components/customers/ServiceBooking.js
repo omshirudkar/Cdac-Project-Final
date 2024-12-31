@@ -45,9 +45,9 @@ const ServiceBooking = () => {
     } else if (service === "Batteries") {
       navigate(`/batteriesservices`);
     } else if (service === "Denting And Painting") {
-      navigate(`/service-details/denting-and-painting`);
+      navigate(`/DentingAndPainting`);
     } else if (service === "Periodic Services") {
-      navigate(`/service-details/periodic-services`);
+      navigate(`periodicservices`);
     } else if (service === "Accidental Car Repair") {
       navigate(`/service-details/accidental-car-repair`);
     } else if (service === "Tyres And Wheels") {
